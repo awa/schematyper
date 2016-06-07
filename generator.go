@@ -67,26 +67,29 @@ type goType struct {
 }
 
 func (gt goType) print(buf *bytes.Buffer) {
+	typeStr := gt.TypePrefix
+	if typeStr != "struct" {
+		return
+	}
 	if gt.Comment != "" {
 		buf.WriteString(fmt.Sprintf("// %s\n", gt.Comment))
 	}
-	typeStr := gt.TypePrefix
 	baseType, ok := types[gt.TypeRef]
 	if ok {
 		typeStr += baseType.Name
 	}
 	buf.WriteString(fmt.Sprintf("type %s %s", gt.Name, typeStr))
-	if typeStr != "struct" {
-		buf.WriteString("\n")
-		return
-	}
 	buf.WriteString(" {\n")
 	sort.Stable(gt.Fields)
 	for _, sf := range gt.Fields {
 		sfTypeStr := sf.TypePrefix
 		sfBaseType, ok := types[sf.TypeRef]
 		if ok {
-			sfTypeStr += sfBaseType.Name
+			if sfBaseType.TypePrefix == "struct" {
+				sfTypeStr += sfBaseType.Name
+			} else {
+				sfTypeStr += sfBaseType.TypePrefix
+			}
 		}
 		if sf.Nullable && sfTypeStr != "interface{}" {
 			sfTypeStr = "*" + sfTypeStr
