@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"go/format"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -14,8 +13,7 @@ import (
 	"strings"
 	"unicode"
 
-	"gopkg.in/alecthomas/kingpin.v2"
-
+	"github.com/alecthomas/kingpin/v2"
 	"github.com/gedex/inflector"
 	"github.com/idubinskiy/schematyper/stringset"
 )
@@ -612,7 +610,7 @@ func parseDefs(s *metaSchema, path string) {
 func main() {
 	kingpin.Parse()
 
-	file, err := ioutil.ReadFile(*inputFile)
+	file, err := os.ReadFile(*inputFile)
 	if err != nil {
 		log.Fatalln("Error reading file:", err)
 	}
@@ -663,7 +661,7 @@ func main() {
 			compactSchemaName := strings.ToLower(*rootTypeName)
 			outputFileName = fmt.Sprintf("%s_schematype.go", compactSchemaName)
 		}
-		err = ioutil.WriteFile(outputFileName, formattedSrc, 0644)
+		err = os.WriteFile(outputFileName, formattedSrc, 0o644)
 		if err != nil {
 			log.Fatalf("Error writing to %s: %s\n", outputFileName, err)
 		}
